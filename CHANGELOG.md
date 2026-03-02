@@ -1,3 +1,11 @@
+## [1.39.2](https://github.com/deriv-com/deriv-analytics/compare/v1.39.1...v1.39.2) (2026-03-02)
+
+### 🐛 Bug Fixes
+
+- centralize PII sanitization for all analytics providers ([0622078](https://github.com/deriv-com/deriv-analytics/commit/06220781e247bebb8d94413d8d8659c73562cb7f))
+- centralize PII sanitization in identifyEvent for all providers ([349a80c](https://github.com/deriv-com/deriv-analytics/commit/349a80c83fb75441f20ad56720a8ec026e26703b))
+- failed tests ([b1465c7](https://github.com/deriv-com/deriv-analytics/commit/b1465c7b3403719c9275d8e53b5d0978bd6e0b41))
+
 ## [1.39.1](https://github.com/deriv-com/deriv-analytics/compare/v1.39.0...v1.39.1) (2026-03-02)
 
 ### ♻️ Chores
