@@ -192,7 +192,7 @@ describe('PostHog Provider', () => {
         })
 
         test('should identify user with user ID only', () => {
-            instance.identifyEvent('CR123', { email: 'user@example.com' })
+            instance.identifyEvent('CR123', { is_internal: false })
 
             expect(posthog.identify).toHaveBeenCalledWith('CR123', { client_id: 'CR123', is_internal: false })
             expect(instance.has_identified).toBe(true)
@@ -200,7 +200,7 @@ describe('PostHog Provider', () => {
 
         test('should identify user with traits', () => {
             const traits = {
-                email: 'user@example.com',
+                is_internal: false,
                 language: 'en',
                 country_of_residence: 'US',
                 custom_field: 'value',
@@ -221,7 +221,7 @@ describe('PostHog Provider', () => {
         test('should identify user when not previously identified', () => {
             ;(posthog._isIdentified as jest.Mock).mockReturnValue(false)
 
-            instance.identifyEvent('CR123', { email: 'user@example.com' })
+            instance.identifyEvent('CR123', { is_internal: false })
 
             expect(posthog.identify).toHaveBeenCalledWith('CR123', { client_id: 'CR123', is_internal: false })
         })
@@ -229,7 +229,7 @@ describe('PostHog Provider', () => {
         test('should not identify when user is already identified', () => {
             ;(posthog._isIdentified as jest.Mock).mockReturnValue(true)
 
-            instance.identifyEvent('CR123', { email: 'user@example.com' })
+            instance.identifyEvent('CR123', { is_internal: false })
 
             expect(posthog.identify).not.toHaveBeenCalled()
             // setPersonProperties is not called here — use backfillPersonProperties for backfilling
@@ -239,7 +239,7 @@ describe('PostHog Provider', () => {
         test('should identify user and include client_id in traits', () => {
             ;(posthog._isIdentified as jest.Mock).mockReturnValue(false)
 
-            instance.identifyEvent('CR123', { email: 'user@example.com' })
+            instance.identifyEvent('CR123', { is_internal: false })
 
             expect(posthog.identify).toHaveBeenCalledWith('CR123', { client_id: 'CR123', is_internal: false })
         })
@@ -249,7 +249,7 @@ describe('PostHog Provider', () => {
             // @ts-ignore - testing runtime scenario
             posthog._isIdentified = undefined
 
-            instance.identifyEvent('CR789', { email: 'user@example.com' })
+            instance.identifyEvent('CR789', { is_internal: false })
 
             // Should use instance has_identified flag (false by default)
             expect(posthog.alias).not.toHaveBeenCalled()
@@ -262,7 +262,7 @@ describe('PostHog Provider', () => {
         test('should warn when not initialized', () => {
             const uninitializedInstance = new Posthog({ apiKey: '' })
 
-            uninitializedInstance.identifyEvent('CR123', { email: 'user@example.com' })
+            uninitializedInstance.identifyEvent('CR123', { is_internal: false })
 
             expect(consoleWarnSpy).toHaveBeenCalledWith('Posthog: Cannot identify - not initialized')
             expect(posthog.identify).not.toHaveBeenCalled()
@@ -273,7 +273,7 @@ describe('PostHog Provider', () => {
                 throw new Error('Identify failed')
             })
 
-            instance.identifyEvent('CR123', { email: 'user@example.com' })
+            instance.identifyEvent('CR123', { is_internal: false })
 
             expect(consoleErrorSpy).toHaveBeenCalledWith('Posthog: Failed to identify user', expect.any(Error))
         })
@@ -466,7 +466,7 @@ describe('PostHog Provider', () => {
             expect(instance.has_identified).toBe(false)
 
             // Identify user
-            instance.identifyEvent('CR456', { email: 'user@example.com', language: 'en' })
+            instance.identifyEvent('CR456', { is_internal: false, language: 'en' })
 
             expect(posthog.identify).toHaveBeenCalledWith('CR456', {
                 language: 'en',
