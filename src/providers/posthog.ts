@@ -1,7 +1,7 @@
 import posthog from 'posthog-js'
 import type { TPosthogConfig, TPosthogIdentifyTraits, TPosthogOptions } from './posthogTypes'
 import type { TCoreAttributes } from '../types'
-import { allowedDomains, posthogApiHost, posthogUiHost } from '../utils/urls'
+import { allowedDomains, getPosthogApiHost, posthogUiHost } from '../utils/urls'
 import { createLogger, isInternalEmail } from '../utils/helpers'
 
 /**
@@ -59,10 +59,11 @@ export class Posthog {
                 return
             }
 
-            this.log('init | loading PostHog SDK', { api_host: api_host || posthogApiHost })
+            const resolvedApiHost = api_host || getPosthogApiHost()
+            this.log('init | loading PostHog SDK', { api_host: resolvedApiHost })
 
             const posthogConfig: TPosthogConfig = {
-                api_host: api_host || posthogApiHost,
+                api_host: resolvedApiHost,
                 ui_host: posthogUiHost,
                 autocapture: true,
                 capture_pageview: 'history_change',
@@ -151,28 +152,43 @@ export class Posthog {
      * Call this when the user ID is available and PostHog is loaded.
      * No-op if client_id is already present.
      *
-     * @param user_id - The user ID to use as client_id
-     * @param email - The user's email, used to determine is_internal
+     * @param params.user_id - The user ID to use as client_id
+     * @param params.email - The user's email, used to determine is_internal
+     * @param params.country_of_residence - The user's country of residence
      */
-    backfillPersonProperties = (user_id: string, email?: string): void => {
+    backfillPersonProperties = ({
+        user_id,
+        email,
+        country_of_residence,
+    }: {
+        user_id: string
+        email?: string
+        country_of_residence?: string
+    }): void => {
         if (!this.has_initialized || !user_id) return
 
         try {
-            const storedProperties = posthog.get_property('$stored_person_properties')
+            const storedProperties: Record<string, any> = posthog.get_property('$stored_person_properties') ?? {}
             const updates: Record<string, any> = {}
 
-            if (!storedProperties?.client_id) {
+            if (!storedProperties.client_id) {
                 updates.client_id = user_id
             }
-            if (email && storedProperties?.is_internal === undefined) {
+            if (email && storedProperties.is_internal === undefined) {
                 updates.is_internal = isInternalEmail(email)
+            }
+            if (country_of_residence && !storedProperties.country_of_residence) {
+                updates.country_of_residence = country_of_residence
             }
 
             if (Object.keys(updates).length > 0) {
                 this.log('backfillPersonProperties | backfilling person properties', { user_id, updates })
                 posthog.setPersonProperties(updates)
             } else {
-                this.log('backfillPersonProperties | skipped — all properties already present', { user_id })
+                this.log('backfillPersonProperties | skipped — all properties already present', {
+                    user_id,
+                    country_of_residence,
+                })
             }
         } catch (error) {
             console.error('Posthog: Failed to backfill person properties', error)

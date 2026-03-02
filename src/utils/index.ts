@@ -8,4 +8,11 @@ export {
     clearCachedPageViews,
 } from './cookie'
 export { getCountry, isUUID } from './helpers'
-export { allowedDomains, cloudflareTrace, getAllowedDomain, growthbookApi, rudderstackDataplane } from './urls'
+export {
+    allowedDomains,
+    cloudflareTrace,
+    getAllowedDomain,
+    getPosthogApiHost,
+    growthbookApi,
+    rudderstackDataplane,
+} from './urls'

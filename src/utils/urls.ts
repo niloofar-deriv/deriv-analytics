@@ -4,6 +4,14 @@ export const rudderstackDataplane = 'https://deriv-dataplane.rudderstack.com'
 export const posthogApiHost = 'https://ph.deriv.com'
 export const posthogUiHost = 'https://us.posthog.com'
 
+export const getPosthogApiHost = (): string => {
+    if (typeof window === 'undefined') return posthogApiHost
+    const hostname = window.location.hostname
+    if (hostname.includes('.deriv.me')) return 'https://ph.deriv.me'
+    if (hostname.includes('.deriv.be')) return 'https://ph.deriv.be'
+    return posthogApiHost
+}
+
 export const allowedDomains = ['deriv.com', 'deriv.be', 'deriv.me', 'deriv.team', 'deriv.ae'] as const
 
 export const internalEmailDomains = [
