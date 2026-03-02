@@ -104,7 +104,8 @@ export function createAnalyticsInstance(_options?: Options) {
             if (storedEvents.length > 0) {
                 log(`processCookieCache | replaying ${storedEvents.length} cached event(s)`, storedEvents)
                 storedEvents.forEach(event => {
-                    _rudderstack?.track(event.name as keyof TAllEvents, event.properties as any)
+                    const cleaned_properties = cleanObject(event.properties)
+                    _rudderstack?.track(event.name as keyof TAllEvents, cleaned_properties as any)
                 })
                 clearCachedEvents()
             }
@@ -608,10 +609,15 @@ export function createAnalyticsInstance(_options?: Options) {
 
         // Handle PostHog independently - send immediately if initialized
         if (_posthog?.has_initialized) {
+            const posthog_excluded_keys = ['page_name', 'user_language', 'form_name', 'version', 'email_hash'] as const
             const flattened_payload = flattenObject(final_payload)
-            const cleaned_posthog_payload = cleanObject(flattened_payload)
-            log('trackEvent | sending event to PostHog', { event, payload: cleaned_posthog_payload })
-            _posthog.capture(event as string, cleaned_posthog_payload)
+            const posthog_payload = cleanObject(
+                Object.fromEntries(
+                    Object.entries(flattened_payload).filter(([key]) => !posthog_excluded_keys.includes(key as any))
+                )
+            )
+            log('trackEvent | sending event to PostHog', { event, payload: posthog_payload })
+            _posthog.capture(event as string, posthog_payload)
         }
     }
 
@@ -621,20 +627,30 @@ export function createAnalyticsInstance(_options?: Options) {
      * Useful for backfilling client_id for users identified in previous sessions.
      * No-op if client_id is already present or PostHog is not initialized.
      *
-     * @param user_id - The user ID to use as client_id
+     * @param params.user_id - The user ID to use as client_id
+     * @param params.email - The user's email, used to determine is_internal
+     * @param params.country_of_residence - The user's country of residence
      *
      * @example
      * ```typescript
      * if (window.posthog?.__loaded && userId) {
-     *     analytics.backfillPersonProperties(userId, email)
+     *     analytics.backfillPersonProperties({ user_id: userId, email, country_of_residence })
      * }
      * ```
      */
-    const backfillPersonProperties = (user_id: string, email?: string): void => {
+    const backfillPersonProperties = ({
+        user_id,
+        email,
+        country_of_residence,
+    }: {
+        user_id: string
+        email?: string
+        country_of_residence?: string
+    }): void => {
         log('backfillPersonProperties | called', { user_id })
         if (_posthog?.has_initialized) {
             log('backfillPersonProperties | backfilling person properties in PostHog', { user_id })
-            _posthog.backfillPersonProperties(user_id, email)
+            _posthog.backfillPersonProperties({ user_id, email, country_of_residence })
         } else {
             log('backfillPersonProperties | skipped — PostHog not initialized')
         }
