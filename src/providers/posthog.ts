@@ -115,12 +115,10 @@ export class Posthog {
                 typeof posthog._isIdentified === 'function' ? posthog._isIdentified() : this.has_identified
 
             if (user_id && !isIdentified) {
-                const { email, ...safeTraits } = traits
-                this.log('identifyEvent | identifying user', { user_id, safeTraits })
+                this.log('identifyEvent | identifying user', { user_id, traits })
                 posthog.identify(user_id, {
-                    ...safeTraits,
+                    ...traits,
                     client_id: user_id,
-                    ...(email && { is_internal: isInternalEmail(email) }),
                 })
                 this.has_identified = true
             } else {

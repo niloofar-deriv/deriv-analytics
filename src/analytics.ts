@@ -8,7 +8,7 @@ import {
     clearCachedEvents,
     clearCachedPageViews,
 } from './utils/cookie'
-import { isUUID, getCountry, cleanObject, flattenObject, createLogger } from './utils/helpers'
+import { isUUID, getCountry, cleanObject, flattenObject, createLogger, isInternalEmail } from './utils/helpers'
 import { cacheTrackEvents } from './utils/analytics-cache'
 
 // Optional Growthbook types - only import if using Growthbook
@@ -474,10 +474,25 @@ export function createAnalyticsInstance(_options?: Options) {
 
         log('identifyEvent | called', { user_id: stored_user_id, traits })
 
+        // Strip PII: replace raw email with is_internal flag
+        const sanitizePII = (t?: Record<string, any>) => {
+            if (!t) return t
+            const { email, ...safe } = t
+            return { ...safe, ...(email && { is_internal: isInternalEmail(email) }) }
+        }
+
         // Check if traits has provider-specific structure
         const hasProviderStructure = traits?.rudderstack !== undefined || traits?.posthog !== undefined
-        const rudderstackTraits = hasProviderStructure ? traits?.rudderstack : traits
-        const posthogTraits = hasProviderStructure ? traits?.posthog : traits
+        let rudderstackTraits, posthogTraits
+        if (hasProviderStructure) {
+            // Merge shared top-level props with provider-specific ones (provider-specific wins on conflict)
+            const { rudderstack, posthog, ...sharedTraits } = traits as any
+            rudderstackTraits = sanitizePII({ ...sharedTraits, ...rudderstack })
+            posthogTraits = sanitizePII({ ...sharedTraits, ...posthog })
+        } else {
+            rudderstackTraits = sanitizePII(traits)
+            posthogTraits = sanitizePII(traits)
+        }
 
         // Handle RudderStack identification independently
         if (_rudderstack) {
