@@ -1,3 +1,10 @@
+## [1.39.1](https://github.com/deriv-com/deriv-analytics/compare/v1.39.0...v1.39.1) (2026-03-02)
+
+### ♻️ Chores
+
+- upgrade posthog-js to ^1.356.1 ([70da53a](https://github.com/deriv-com/deriv-analytics/commit/70da53a9456a15ddec504efc33c83ece0fa074f4))
+- upgrade posthog-js to ^1.356.1 ([287431d](https://github.com/deriv-com/deriv-analytics/commit/287431d01bd2e021e5e7162a1df596f40417d037))
+
 # [1.39.0](https://github.com/deriv-com/deriv-analytics/compare/v1.38.10...v1.39.0) (2026-03-02)
 
 ### ✨ Features
