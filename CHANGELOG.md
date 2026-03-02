@@ -1,3 +1,15 @@
+# [1.39.0](https://github.com/deriv-com/deriv-analytics/compare/v1.38.10...v1.39.0) (2026-03-02)
+
+### ✨ Features
+
+- enhance PostHog configs with domain-aware API host and extended person properties ([300438d](https://github.com/deriv-com/deriv-analytics/commit/300438d87f563444037f333deec4533b74cf40af))
+- enhance PostHog configs with domain-aware API host and extended person properties ([e47d43c](https://github.com/deriv-com/deriv-analytics/commit/e47d43c640339ec9585e9a3144d3d7a17e78390a))
+
+### 🐛 Bug Fixes
+
+- failed tests ([8d7e023](https://github.com/deriv-com/deriv-analytics/commit/8d7e023dae6865e17b598cb7dcb069c6f542dc64))
+- failed tests ([6381712](https://github.com/deriv-com/deriv-analytics/commit/6381712e4fea4b4912d8a257c7f463d524091ceb))
+
 ## [1.38.10](https://github.com/deriv-com/deriv-analytics/compare/v1.38.9...v1.38.10) (2026-02-27)
 
 ### ⚙️ Continuous Integrations
